@@ -1,0 +1,6 @@
+{
+  "name": "FormaX AI",
+  "description": "Operational workspace to transform source content into advisories, summaries, and multi-format drafts.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

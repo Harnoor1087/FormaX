@@ -1,11 +1,13 @@
-<div align="center">
+# FormaX AI – Frontend (Member 1)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+    npm install
+    cp .env.example .env     # VITE_USE_MOCK=true works without the backend
+    npm run dev              # http://localhost:5173
 
-  <h1>Built with AI Studio</h2>
+Set VITE_USE_MOCK=false once Member 2's FastAPI runs on :8000 (Vite proxies /api).
 
-  <p>The fastest path from prompt to production with Gemini.</p>
-
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+## Contract with Member 2 – POST /api/generate
+Request: source_text, source_type ("file"|"text"), source_filename, output_types (array),
+audience, tone, language, detail_level, objective.
+Response: { "outputs": [ { output_type, title, summary, key_points[], body } ] }
+Errors: non-2xx with { "detail": "message" } (shown to the user).
