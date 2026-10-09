@@ -74,12 +74,23 @@ Primary Member 2 pipeline endpoint.
 }
 ```
 
+### `GET /api/v1/security/audit-trail`
+Operator endpoint to view recent security audit events and detected flags without exposing confidential details or credentials.
+
 ### `POST /api/generate` (Member 1 Compatibility Bridge)
 Directly consumes Member 1's frontend requests and returns `{ "outputs": [ ... ] }`.
 
 ---
 
-## 3. Integration Guide for Member 3
+## 3. Security Hardening (Phase 2 - Pillar 1)
+
+- **Rate Limiting & Denial-of-Wallet Gatekeeper**: Sliding-window rate limiting on API endpoints (defaults to 30 req/min per IP) returning `HTTP 429 Too Many Requests`.
+- **Sensitive Data & PII Masking**: Automatic detection and redaction of emails, international phone numbers, Aadhaar/Government IDs, and secret API keys/tokens before context analysis.
+- **Forensic Audit Logger**: Maintains an access-controlled audit trail storing request IDs, timestamps, security decisions, risk scores, and sensitive flags without storing raw credentials or secret tokens.
+
+---
+
+## 4. Integration Guide for Member 3
 
 Member 3 owns the generation logic for specific formats (Advisory, LinkedIn, Executive Summary, etc.). To connect a generator:
 

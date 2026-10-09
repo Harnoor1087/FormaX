@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     PROMPT_INJECTION_BLOCK_THRESHOLD: float = 0.8
     PROMPT_INJECTION_REVIEW_THRESHOLD: float = 0.4
     
+    # Rate Limiting & Denial-of-Wallet settings
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_REQUESTS: int = 30
+    RATE_LIMIT_WINDOW_SECONDS: int = 60
+
+    # Data Protection & Sensitive Information settings
+    ENABLE_PII_REDACTION: bool = True
+    AUDIT_LOG_FILE: str = "logs/security_audit.jsonl"
+    
     # CORS
     CORS_ORIGINS: List[str] = ["*"]
 

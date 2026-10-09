@@ -68,3 +68,31 @@ def test_member1_compatibility_blocked_error(client):
     assert response.status_code == 400
     data = response.json()
     assert "Security alert" in data["detail"]
+
+def test_audit_trail_endpoint(client):
+    # Make a legitimate request
+    payload = {
+        "source_text": "Testing audit log trail generation for compliance verification.",
+        "output_types": ["advisory"],
+    }
+    client.post("/api/v1/process", json=payload)
+
+    # Fetch audit trail
+    response = client.get("/api/v1/security/audit-trail")
+    assert response.status_code == 200
+    data = response.json()
+    assert "total_records" in data
+    assert data["total_records"] > 0
+    assert "request_id" in data["events"][-1]
+
+def test_pii_redaction_during_pipeline(client):
+    payload = {
+        "source_text": "Contact regional lead at security.team@gov.in or +1-555-0199 for escalation.",
+        "output_types": ["advisory"],
+    }
+    response = client.post("/api/v1/process", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    # The structured context source text should have redacted PII
+    assert "security.team@gov.in" not in data["context"]["source_text"]
+    assert "[EMAIL_REDACTED]" in data["context"]["source_text"]

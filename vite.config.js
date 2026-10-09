@@ -8,7 +8,7 @@ function pythonBackendPlugin() {
     name: 'python-backend',
     configureServer() {
       try {
-        proc = spawn('python3', ['-m', 'uvicorn', 'backend.app.main:app', '--host', '0.0.0.0', '--port', '8001'], {
+        proc = spawn('python3', ['-m', 'uvicorn', 'backend.app.main:app', '--host', '0.0.0.0', '--port', '8001', '--reload'], {
           stdio: 'pipe',
         });
         proc.stdout?.on('data', (d) => process.stdout.write(`[FastAPI] ${d}`));
