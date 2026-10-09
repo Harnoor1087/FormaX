@@ -96,3 +96,25 @@ def test_pii_redaction_during_pipeline(client):
     # The structured context source text should have redacted PII
     assert "security.team@gov.in" not in data["context"]["source_text"]
     assert "[EMAIL_REDACTED]" in data["context"]["source_text"]
+
+def test_ingestion_classify_endpoint(client):
+    payload = {
+        "source_text": "Severe cyclone warning. Evacuation procedures initiated for coastal belt immediately."
+    }
+    response = client.post("/api/v1/ingestion/classify", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["content_type"] == "incident_report"
+    assert "advisory" in data["suggested_outputs"]
+
+def test_ingestion_metadata_in_process_response(client):
+    payload = {
+        "source_text": "Page 1 of 2\nINCIDENT SUMMARY\nCritical breach detected across internal core switches.",
+        "output_types": ["advisory"],
+    }
+    response = client.post("/api/v1/process", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    meta = data["context"]["ingestion_metadata"]
+    assert meta["content_type"] == "incident_report"
+    assert "layout" in meta

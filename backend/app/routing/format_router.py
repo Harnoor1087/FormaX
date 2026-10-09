@@ -37,7 +37,8 @@ class FormatRouter:
 
     def route(self, context: StructuredContext, requested_formats: List[OutputType]) -> List[GenerateOutputItem]:
         """
-        Dispatches the validated context in parallel/sequence to each requested generator.
+        Dispatches the validated context to each requested generator with error isolation.
+        If a generator raises an exception, other outputs are preserved.
         """
         outputs = []
         for fmt in requested_formats:
@@ -47,11 +48,29 @@ class FormatRouter:
             
             generator = self._registry.get(fmt_str)
             if not generator:
-                # If Member 3 hasn't connected a custom generator yet, use baseline generator
                 generator = self._create_baseline_generator(fmt_str)
                 
-            output_item = generator(context)
-            outputs.append(output_item)
+            try:
+                output_item = generator(context)
+                if not isinstance(output_item, GenerateOutputItem):
+                    # Wrap or validate
+                    output_item = GenerateOutputItem(
+                        output_type=fmt_str,
+                        title=f"{fmt_str.replace('_', ' ').title()}: {context.topic[:50]}",
+                        summary=str(output_item),
+                        key_points=context.key_facts[:3],
+                        body=str(output_item),
+                    )
+                outputs.append(output_item)
+            except Exception as e:
+                # Fault isolation: Do not fail other requested formats if one fails
+                outputs.append(GenerateOutputItem(
+                    output_type=fmt_str,
+                    title=f"Error Generating {fmt_str.replace('_', ' ').title()}",
+                    summary="A generator error occurred during formatting.",
+                    key_points=[],
+                    body=f"Failed to generate output: {str(e)}",
+                ))
             
         return outputs
 
@@ -94,3 +113,10 @@ class FormatRouter:
         return generator
 
 default_router = FormatRouter()
+
+# Auto-register standard generator modules
+try:
+    from ..generators.registry import register_all_generators
+    register_all_generators(default_router)
+except ImportError:
+    pass

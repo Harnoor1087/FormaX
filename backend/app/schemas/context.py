@@ -47,7 +47,7 @@ class ExtractedContext(BaseModel):
 class StructuredContext(ExtractedContext):
     """
     Deliverable to Member 3: Combines normalized source text, extracted facts,
-    and operator parameters (Section 6.2).
+    operator parameters, and ingestion metadata (Section 6.2).
     """
     source_text: str = Field(
         ...,
@@ -56,4 +56,8 @@ class StructuredContext(ExtractedContext):
     parameters: GenerationParameters = Field(
         ...,
         description="Structured operator generation parameters"
+    )
+    ingestion_metadata: Optional[dict] = Field(
+        default_factory=dict,
+        description="Layout structure, classification, and content type metadata"
     )
