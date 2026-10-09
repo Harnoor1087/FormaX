@@ -10,6 +10,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script>
+      // Ensure window.fetch has a setter so third-party extensions/tools running in iframes can patch it without throwing
+      try {
+        let _fetch = window.fetch;
+        Object.defineProperty(window, 'fetch', {
+          get() { return _fetch; },
+          set(val) { _fetch = val; },
+          configurable: true,
+          enumerable: true,
+        });
+      } catch (e) {
+        /* no-op */
+      }
+
+      // Suppress unhandled errors originated from browser extensions
+      window.addEventListener('error', function (event) {
+        if (event.filename && (event.filename.startsWith('chrome-extension://') || event.filename.startsWith('moz-extension://'))) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+    </script>
   </head>
   <body>
     <div id="root"></div>

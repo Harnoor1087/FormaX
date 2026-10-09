@@ -1,0 +1,19 @@
+[
+  "backend/tests/test_api_endpoints.py::test_health_check",
+  "backend/tests/test_api_endpoints.py::test_member1_compatibility_blocked_error",
+  "backend/tests/test_api_endpoints.py::test_member1_compatibility_endpoint",
+  "backend/tests/test_api_endpoints.py::test_process_pipeline_blocked_by_security",
+  "backend/tests/test_api_endpoints.py::test_process_pipeline_success",
+  "backend/tests/test_context_analysis.py::test_context_analysis_heuristic_fallback",
+  "backend/tests/test_context_analysis.py::test_context_analysis_schema_conformance",
+  "backend/tests/test_format_router.py::test_format_router_routes_multi_outputs",
+  "backend/tests/test_format_router.py::test_member_3_custom_generator_registration",
+  "backend/tests/test_request_validation.py::test_duplicate_output_types_deduplicated",
+  "backend/tests/test_request_validation.py::test_empty_output_types_fails",
+  "backend/tests/test_request_validation.py::test_empty_source_text_fails",
+  "backend/tests/test_request_validation.py::test_max_character_limit_exceeded",
+  "backend/tests/test_request_validation.py::test_valid_request",
+  "backend/tests/test_security.py::test_clean_input_allowed",
+  "backend/tests/test_security.py::test_prompt_injection_blocked",
+  "backend/tests/test_security.py::test_zero_width_character_normalization"
+]
