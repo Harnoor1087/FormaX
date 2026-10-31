@@ -1,8 +1,10 @@
 import json
-import os
+import logging
 import re
 from typing import Optional, Dict, Any
 from ..config import settings
+
+logger = logging.getLogger(__name__)
 
 class ModelClient:
     """
@@ -10,7 +12,7 @@ class ModelClient:
     """
 
     def __init__(self, api_key: Optional[str] = None, model_name: Optional[str] = None):
-        self.api_key = api_key or settings.GEMINI_API_KEY
+        self.api_key = settings.GEMINI_API_KEY if api_key is None else api_key
         self.model_name = model_name or settings.DEFAULT_MODEL
         self._mock_response: Optional[Dict[str, Any]] = None
 
@@ -18,7 +20,13 @@ class ModelClient:
         """Allows test suites to inject deterministic mock outputs."""
         self._mock_response = response
 
-    def generate_json(self, prompt: str, source_text_hint: str = "") -> Dict[str, Any]:
+    def generate_json(
+        self,
+        prompt: str,
+        source_text_hint: str = "",
+        *,
+        allow_heuristic_fallback: bool = True,
+    ) -> Dict[str, Any]:
         """
         Executes model completion or returns deterministic fallback structure.
         """
@@ -33,18 +41,38 @@ class ModelClient:
                 response = client.models.generate_content(
                     model=self.model_name,
                     contents=prompt,
+                    config={"response_mime_type": "application/json"},
                 )
-                text = response.text.strip()
+                text = (response.text or "").strip()
+                if not text:
+                    raise ValueError("The model returned an empty response.")
                 # Clean code fences if present
                 if text.startswith("```"):
                     text = re.sub(r"^```(?:json)?\n?", "", text)
                     text = re.sub(r"\n?```$", "", text)
-                return json.loads(text.strip())
-            except Exception as e:
-                # Log error and fall back to grounded heuristic extraction
-                pass
+                result = json.loads(text.strip())
+                if not isinstance(result, dict):
+                    raise ValueError("The model response must be a JSON object.")
+                return result
+            except Exception as exc:
+                logger.error("Gemini JSON generation failed (%s).", type(exc).__name__)
+                if not allow_heuristic_fallback:
+                    status_code = getattr(exc, "code", None)
+                    if status_code == 503:
+                        message = "Gemini is temporarily busy (HTTP 503). Retry shortly."
+                    elif status_code == 429:
+                        message = "Gemini request quota is temporarily exhausted (HTTP 429). Using a labeled template draft."
+                    elif status_code == 404:
+                        message = "The configured Gemini model is unavailable (HTTP 404). Check MODEL_NAME."
+                    elif isinstance(exc, (json.JSONDecodeError, ValueError)):
+                        message = "The configured AI model failed to generate valid JSON."
+                    else:
+                        message = "Gemini could not generate this draft. Check the backend logs and API access."
+                    raise RuntimeError(message) from exc
 
         # Offline / Mock Fallback Extraction: extracts source-grounded facts
+        if not allow_heuristic_fallback:
+            raise RuntimeError("AI generation requires GEMINI_API_KEY to be configured.")
         return self._heuristic_extraction(source_text_hint)
 
     def _heuristic_extraction(self, text: str) -> Dict[str, Any]:
@@ -57,7 +85,7 @@ class ModelClient:
         
         # Split sentences
         sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if len(s.strip()) > 15]
-        key_facts = sentences[:4] if sentences else ["Source content provided for review."]
+        key_facts = sentences[:4]
         
         # Entity detection (Capitalized words/phrases)
         entity_matches = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", text)

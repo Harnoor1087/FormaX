@@ -1,4 +1,5 @@
 from typing import Callable, Dict, List, Any
+from ..errors import LanguageGenerationUnavailable
 from ..schemas.request import OutputType
 from ..schemas.context import StructuredContext
 from ..schemas.response import GenerateOutputItem
@@ -39,9 +40,13 @@ class FormatRouter:
         """
         Dispatches the validated context to each requested generator with error isolation.
         If a generator raises an exception, other outputs are preserved.
+        Uses parallel execution for better performance.
         """
+        import concurrent.futures
+        
         outputs = []
-        for fmt in requested_formats:
+        
+        def generate_single(fmt):
             fmt_str = fmt.value if isinstance(fmt, OutputType) else str(fmt)
             if fmt_str not in SUPPORTED_FORMATS:
                 raise ValueError(f"Requested format '{fmt_str}' is not supported.")
@@ -61,16 +66,45 @@ class FormatRouter:
                         key_points=context.key_facts[:3],
                         body=str(output_item),
                     )
-                outputs.append(output_item)
+                return (fmt_str, output_item, None)
+            except LanguageGenerationUnavailable:
+                raise
             except Exception as e:
                 # Fault isolation: Do not fail other requested formats if one fails
-                outputs.append(GenerateOutputItem(
+                error_output = GenerateOutputItem(
                     output_type=fmt_str,
                     title=f"Error Generating {fmt_str.replace('_', ' ').title()}",
                     summary="A generator error occurred during formatting.",
                     key_points=[],
                     body=f"Failed to generate output: {str(e)}",
-                ))
+                )
+                return (fmt_str, error_output, e)
+        
+        # Execute all generators in parallel using ThreadPoolExecutor
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(requested_formats)) as executor:
+            future_to_format = {executor.submit(generate_single, fmt): fmt for fmt in requested_formats}
+            
+            for future in concurrent.futures.as_completed(future_to_format):
+                try:
+                    fmt_str, output_item, error = future.result()
+                    outputs.append(output_item)
+                except LanguageGenerationUnavailable:
+                    raise
+                except Exception as e:
+                    # Fallback error handling
+                    fmt = future_to_format[future]
+                    fmt_str = fmt.value if isinstance(fmt, OutputType) else str(fmt)
+                    outputs.append(GenerateOutputItem(
+                        output_type=fmt_str,
+                        title=f"Error Generating {fmt_str.replace('_', ' ').title()}",
+                        summary="A generator error occurred during formatting.",
+                        key_points=[],
+                        body=f"Failed to generate output: {str(e)}",
+                    ))
+        
+        # Sort outputs to match the order of requested_formats
+        format_order = {fmt.value if isinstance(fmt, OutputType) else str(fmt): i for i, fmt in enumerate(requested_formats)}
+        outputs.sort(key=lambda x: format_order.get(x.output_type, 999))
             
         return outputs
 
@@ -84,7 +118,7 @@ class FormatRouter:
         expected by Member 1's frontend.
         """
         def generator(ctx: StructuredContext) -> GenerateOutputItem:
-            facts_list = ctx.key_facts if ctx.key_facts else ["Key details extracted from source."]
+            facts_list = ctx.key_facts
             formatted_title = f"{format_name.replace('_', ' ').capitalize()}: {ctx.topic[:60]}"
             summary_text = (
                 f"Generated {format_name.replace('_', ' ')} tailored for {ctx.parameters.audience} "

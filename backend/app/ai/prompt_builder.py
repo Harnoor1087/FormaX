@@ -1,3 +1,6 @@
+import re
+
+
 SYSTEM_INSTRUCTIONS = """You are the Context & Intent Analysis Engine of FormaX AI.
 Your job is to objectively analyze source text and extract structured analytical facts for downstream communication generators.
 
@@ -21,13 +24,18 @@ You MUST respond ONLY with a valid JSON object matching this exact schema:
 Do not include markdown codeblocks, explanations, or text outside the JSON object.
 """
 
+def wrap_untrusted_source(source_text: str) -> str:
+    escaped = re.sub(
+        r"</?untrusted_source_content\s*>",
+        lambda match: match.group(0).replace("<", "&lt;").replace(">", "&gt;"),
+        source_text,
+        flags=re.IGNORECASE,
+    )
+    return f"<untrusted_source_content>\n{escaped}\n</untrusted_source_content>"
+
+
 def build_context_analysis_prompt(normalized_source_text: str) -> str:
     """
     Constructs an isolated, structured prompt for Context & Intent Analysis.
     """
-    return f"""{SYSTEM_INSTRUCTIONS}
-
-<untrusted_source_content>
-{normalized_source_text}
-</untrusted_source_content>
-"""
+    return f"{SYSTEM_INSTRUCTIONS}\n\n{wrap_untrusted_source(normalized_source_text)}\n"

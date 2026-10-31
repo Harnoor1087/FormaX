@@ -6,7 +6,7 @@ export const OUTPUT_TYPES = [
   { id: 'executive_summary', label: 'Executive summary' },
   { id: 'presentation', label: 'Presentation' },
   { id: 'infographic', label: 'Infographic content' },
-  { id: 'video_package', label: 'Video package' },
+  { id: 'video_package', label: 'Video script package' },
 ];
 
 export const PARAMS = [

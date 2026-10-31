@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { OUTPUT_TYPES, PARAMS, DEFAULTS } from './options';
 import { extractText } from './extract';
-import { generate } from './api';
+import { generate, identifyAccessToken } from './api';
 import Results from './Results.jsx';
+import History from './History.jsx';
 import { Sidebar, TopBar } from './Shell.jsx';
 
 const MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
@@ -20,6 +21,12 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [outputs, setOutputs] = useState(null);
+  const [generationMode, setGenerationMode] = useState(MOCK ? 'mock' : null);
+  const [page, setPage] = useState('transform');
+  const [accessToken, setAccessToken] = useState('');
+  const [role, setRole] = useState(MOCK ? 'reviewer' : null);
+  const [authError, setAuthError] = useState('');
+  const [connecting, setConnecting] = useState(false);
 
   async function handleFile(f) {
     if (!f) return;
@@ -47,12 +54,36 @@ export default function App() {
     setTypes((t) => (t.includes(id) ? t.filter((x) => x !== id) : [...t, id]));
 
   const tooLong = text.length > MAX_CHARS;
-  const canGenerate = text.trim() && types.length && !extracting && !loading && !tooLong;
+  const canGenerate = text.trim() && types.length && !extracting && !loading && !tooLong && (MOCK || role);
+
+  async function connect(token) {
+    setConnecting(true);
+    setAuthError('');
+    try {
+      const identity = await identifyAccessToken(token);
+      setAccessToken(token);
+      setRole(identity.role);
+    } catch (e) {
+      setAccessToken('');
+      setRole(null);
+      setAuthError(e.message);
+    } finally {
+      setConnecting(false);
+    }
+  }
+
+  function disconnect() {
+    setAccessToken('');
+    setRole(null);
+    setAuthError('');
+  }
 
   async function onGenerate() {
+    setPage('transform');
     setError('');
     setLoading(true);
     setOutputs(null);
+    setGenerationMode(null);
     const payload = {
       source_text: text.trim(),
       source_type: file ? 'file' : 'text',
@@ -61,8 +92,9 @@ export default function App() {
       ...params,
     };
     try {
-      const data = await generate(payload);
+      const data = await generate(payload, accessToken);
       setOutputs(data.outputs);
+      setGenerationMode(data.generation_mode || 'template');
     } catch (e) {
       setError(e.message);
     } finally {
@@ -72,10 +104,20 @@ export default function App() {
 
   return (
     <div className="shell">
-      <Sidebar />
+      <Sidebar
+        page={page}
+        onNavigate={setPage}
+        onConnect={connect}
+        onDisconnect={disconnect}
+        role={role}
+        authError={authError}
+        connecting={connecting}
+        mock={MOCK}
+      />
       <div className="main">
         <TopBar mock={MOCK} />
         <div className="content">
+      {page === 'history' ? <History accessToken={accessToken} role={role} /> : <>
       <header className="top">
         <h1>FormaX AI</h1>
         <p>Add a source, choose the outputs, then review every draft before it leaves the platform.</p>
@@ -143,7 +185,15 @@ export default function App() {
         </section>
       </main>
 
-      {outputs && <Results outputs={outputs} />}
+      {outputs && (
+        <Results
+          outputs={outputs}
+          accessToken={accessToken}
+          canReview={MOCK || role === 'reviewer'}
+          generationMode={generationMode}
+        />
+      )}
+      </>}
         </div>
       </div>
     </div>

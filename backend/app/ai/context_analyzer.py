@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from .prompt_builder import build_context_analysis_prompt
 from .model_client import ModelClient
@@ -21,8 +22,14 @@ class ContextAnalyzer:
         
         # Validate against ExtractedContext Pydantic schema
         try:
+            topic = raw_data.get("topic", "General Analysis")
+            if isinstance(topic, str):
+                topic = topic.strip()
+                first_sentence = re.match(r"(.+?[.!?])(?:\s|$)", topic)
+                if first_sentence:
+                    topic = first_sentence.group(1).rstrip(".!?")
             return ExtractedContext(
-                topic=raw_data.get("topic", "General Analysis"),
+                topic=topic,
                 domain=raw_data.get("domain", "General"),
                 key_facts=raw_data.get("key_facts", []),
                 entities=raw_data.get("entities", []),

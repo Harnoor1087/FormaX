@@ -5,19 +5,19 @@ def generate_linkedin_post(ctx: StructuredContext) -> GenerateOutputItem:
     """
     Generates a professional LinkedIn post with narrative hook, bullet points, and hashtags.
     """
-    title = f"Insight Briefing: {ctx.topic[:70]}"
+    title = f"Insight Briefing: {ctx.topic}"
     summary = f"Professional leadership overview on {ctx.topic} tailored for {ctx.parameters.audience}."
     
-    key_points = ctx.key_facts[:4] if ctx.key_facts else ["Key developments noted in source."]
+    key_points = ctx.key_facts[:4]
 
     # Hashtags derived from domain and topic
     domain_tag = ctx.domain.replace(" ", "").replace("&", "")
-    hashtags = f"#{domain_tag} #Operations #Strategy #FormaXAI"
+    hashtags = f"#{domain_tag} #FormaXAI"
 
     body_lines = [
-        f"🚨 Operational Update: {ctx.topic}",
+        f"Operational Update: {ctx.topic}",
         "",
-        f"As leaders and teams navigate evolving developments in {ctx.domain.lower()}, here are the core facts you need to know today:",
+        f"Here are the source-based facts related to {ctx.topic}:",
         "",
     ]
 
@@ -27,9 +27,9 @@ def generate_linkedin_post(ctx: StructuredContext) -> GenerateOutputItem:
     body_lines.extend([
         "",
         "💡 Key Takeaway:",
-        f"Maintaining clear alignment and factual consistency across all channels is critical when handling {ctx.urgency}-priority situations.",
+        f"Review these findings in the context of applicable procedures. Assessed urgency: {ctx.urgency}.",
         "",
-        "What are your teams implementing to stay ahead of these challenges? Join the discussion below.",
+        "Confirm any response decisions with the responsible authority.",
         "",
         hashtags
     ])
@@ -46,14 +46,13 @@ def generate_twitter_thread(ctx: StructuredContext) -> GenerateOutputItem:
     """
     Generates a structured, numbered Twitter / X thread (Synopsis Section 1.1).
     """
-    title = f"X/Twitter Thread: {ctx.topic[:60]}"
-    summary = f"A {len(ctx.key_facts) + 2}-part Twitter/X thread communicating {ctx.urgency} developments."
-    
-    facts = ctx.key_facts[:3] if ctx.key_facts else ["Key operational fact."]
+    facts = ctx.key_facts[:3]
     total_tweets = len(facts) + 2
+    title = f"X/Twitter Thread: {ctx.topic}"
+    summary = f"A {total_tweets}-part Twitter/X thread communicating {ctx.urgency} developments."
 
     thread_parts = [
-        f"1/{total_tweets} 🧵 CRITICAL UPDATE: {ctx.topic}\n\nHere is what you need to know based on verified source documentation. 👇",
+        f"1/{total_tweets} 🧵 OPERATIONAL UPDATE: {ctx.topic}\n\nVerified source facts follow. 👇",
     ]
 
     for i, fact in enumerate(facts, 2):
@@ -61,9 +60,9 @@ def generate_twitter_thread(ctx: StructuredContext) -> GenerateOutputItem:
             f"{i}/{total_tweets} Key Fact:\n{fact}"
         )
 
-    action_text = "Ensure verified protocols are activated." if ctx.urgency in ["high", "critical"] else "Review details via standard channels."
     thread_parts.append(
-        f"{total_tweets}/{total_tweets} Summary:\n{action_text}\n\nStay tuned for official updates. #Update #{ctx.domain.replace(' ', '')}"
+        f"{total_tweets}/{total_tweets} Summary:\nReview the findings and confirm any response with the responsible authority."
+        f"\n\nFollow official channels for verified updates. #Update #{ctx.domain.replace(' ', '')}"
     )
 
     return GenerateOutputItem(

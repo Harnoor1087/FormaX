@@ -5,13 +5,13 @@ def generate_executive_summary(ctx: StructuredContext) -> GenerateOutputItem:
     """
     Generates a high-level briefing for executive leadership (Synopsis Section 1.2).
     """
-    title = f"Executive Briefing: {ctx.topic[:70]}"
+    title = f"Executive Briefing: {ctx.topic}"
     summary = (
-        f"Concise strategic summary on {ctx.topic} prepared for {ctx.parameters.audience} "
+        f"Concise source-based summary on {ctx.topic} prepared for {ctx.parameters.audience} "
         f"with assessed urgency of {ctx.urgency.upper()}."
     )
     
-    key_points = ctx.key_facts[:4] if ctx.key_facts else ["Executive fact extracted from source."]
+    key_points = ctx.key_facts[:4]
 
     body_lines = [
         f"EXECUTIVE SUMMARY | DOMAIN: {ctx.domain.upper()}",
@@ -34,9 +34,9 @@ def generate_executive_summary(ctx: StructuredContext) -> GenerateOutputItem:
         f"Operational constraints mandate strict adherence to source facts without speculative projection.",
         "",
         "4. DECISION RECOMMENDATIONS",
-        "- Authorize immediate tactical briefing for field and coordination teams.",
-        "- Allocate targeted monitoring resources to key entities identified in report.",
-        "- Maintain scheduled communication cadence pending further developments."
+        "- Review the verified findings and determine whether further action is needed.",
+        "- Confirm any response decision with the responsible authority.",
+        "- Update this briefing if new verified information becomes available."
     ])
 
     return GenerateOutputItem(
@@ -51,10 +51,10 @@ def generate_presentation(ctx: StructuredContext) -> GenerateOutputItem:
     """
     Generates structured slide presentation content (Synopsis Section 1.1).
     """
-    title = f"Presentation Deck: {ctx.topic[:60]}"
+    title = f"Presentation Deck: {ctx.topic}"
     summary = f"4-slide structured executive presentation deck on {ctx.topic}."
     
-    key_points = ctx.key_facts[:4] if ctx.key_facts else ["Key slide points."]
+    key_points = ctx.key_facts[:4]
 
     slides = [
         f"[SLIDE 1: TITLE & EXECUTIVE AGENDA]\n"
@@ -71,9 +71,9 @@ def generate_presentation(ctx: StructuredContext) -> GenerateOutputItem:
         "\n".join([f"• {f}" for f in key_points]),
 
         f"[SLIDE 4: STRATEGIC RECOMMENDATIONS & NEXT STEPS]\n"
-        f"• Direct action items tailored for {ctx.parameters.audience}.\n"
-        f"• Prioritize immediate response protocols according to {ctx.urgency.upper()} urgency.\n"
-        f"• Establish review feedback loop."
+        f"• Review the verified findings and determine whether further action is needed.\n"
+        f"• Confirm response decisions with the responsible authority.\n"
+        f"• Update the briefing when new verified information becomes available."
     ]
 
     return GenerateOutputItem(

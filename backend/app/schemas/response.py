@@ -1,7 +1,12 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 from .context import StructuredContext
 from .security import SecurityAssessmentResult
+
+class OutputValidation(BaseModel):
+    schema_valid: bool
+    consistency_valid: bool
+    issues: List[str] = Field(default_factory=list)
 
 class GenerateOutputItem(BaseModel):
     """
@@ -12,6 +17,10 @@ class GenerateOutputItem(BaseModel):
     summary: str
     key_points: List[str]
     body: str
+    output_id: Optional[str] = None
+    review_status: str = "draft"
+    generation_mode: Optional[Literal["gemini", "template", "template_fallback"]] = None
+    validation: Optional[OutputValidation] = None
 
 class GenerateResponse(BaseModel):
     """
@@ -19,7 +28,10 @@ class GenerateResponse(BaseModel):
     """
     outputs: List[GenerateOutputItem]
     request_id: Optional[str] = None
+    generation_id: Optional[str] = None
+    generation_mode: str = "template"
     security: Optional[SecurityAssessmentResult] = None
+    validation: Optional[OutputValidation] = None
 
 class ProcessResponse(BaseModel):
     """
@@ -29,5 +41,14 @@ class ProcessResponse(BaseModel):
     request_id: str = Field(..., description="Unique traceability identifier")
     security: SecurityAssessmentResult = Field(..., description="Security assessment details")
     context: Optional[StructuredContext] = Field(None, description="Structured AI context for generators")
-    outputs: List[Dict[str, Any]] = Field(default_factory=list, description="Populated by Member 3 generators")
+    generation_id: Optional[str] = None
+    generation_mode: str = "template"
+    validation: Optional[OutputValidation] = None
+    outputs: List[GenerateOutputItem] = Field(default_factory=list, description="Populated by Member 3 generators")
     errors: List[str] = Field(default_factory=list, description="Any warnings or error details")
+
+class GenerateOutputUpdate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=500)
+    summary: str = Field(..., min_length=1, max_length=5000)
+    key_points: List[str] = Field(default_factory=list, max_length=100)
+    body: str = Field(..., min_length=1, max_length=50000)

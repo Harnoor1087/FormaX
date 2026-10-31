@@ -12,6 +12,28 @@ def test_context_analysis_schema_conformance(mock_model):
     assert "National Weather Bureau" in extracted.entities
     assert extracted.urgency == "high"
 
+
+def test_context_analysis_keeps_first_complete_sentence_as_topic(mock_model):
+    mock_model.set_mock_response({
+        "topic": (
+            "The City Library will close for roof repairs. "
+            "The Central Branch expects to reopen next Wednesday, "
+        ),
+        "domain": "Public Services",
+        "key_facts": ["The City Library will close for roof repairs."],
+        "entities": ["City Library", "Central Branch"],
+        "urgency": "low",
+        "constraints": [],
+        "missing_information": [],
+    })
+
+    extracted = ContextAnalyzer(model_client=mock_model).analyze(
+        "The City Library will close for roof repairs."
+    )
+
+    assert extracted.topic == "The City Library will close for roof repairs"
+
+
 def test_context_analysis_heuristic_fallback():
     # Test heuristic fallback with no API key and no mock
     analyzer = ContextAnalyzer()

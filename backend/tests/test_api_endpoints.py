@@ -3,7 +3,7 @@ def test_health_check(client):
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "healthy"
-    assert data["role"] == "Member 2: AI Pipeline & Security"
+    assert data["role"] == "AI Pipeline, Generation & Review"
 
 def test_process_pipeline_success(client):
     payload = {
@@ -58,6 +58,21 @@ def test_member1_compatibility_endpoint(client):
     assert data["outputs"][0]["output_type"] == "advisory"
     assert "title" in data["outputs"][0]
     assert "summary" in data["outputs"][0]
+
+
+def test_hindi_request_reports_when_only_english_template_fallback_is_available(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "source_text": "The library will close for repairs on Monday.",
+            "output_types": ["advisory"],
+            "language": "Hindi",
+        },
+    )
+
+    assert response.status_code == 503
+    assert "English template fallback is disabled" in response.json()["detail"]
+
 
 def test_member1_compatibility_blocked_error(client):
     payload = {

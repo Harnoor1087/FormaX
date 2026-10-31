@@ -24,11 +24,20 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(
 .name { font-size: 1.35rem; font-weight: 700; color: #fff; line-height: 1.1; }
 .name span { color: var(--mint); }
 .ws { display: flex; align-items: center; gap: 10px; border: 1px solid var(--navy-line); border-radius: 8px; padding: 11px 14px; font-size: .72rem; color: #dfe6ec; text-transform: uppercase; }
+.auth-box { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--navy-line); border-radius: 8px; color: var(--navy-text); font-size: .75rem; }
+.auth-box input { min-width: 0; padding: 8px !important; font-size: .75rem !important; }
+.auth-box button { padding: 6px 8px; font-size: .7rem; }
+.auth-box > span { line-height: 1.4; }
+.auth-actions { display: grid; gap: 6px; }
+.auth-disconnect { background: transparent; color: var(--navy-text); border-color: var(--navy-line); }
+.auth-error { color: #ffb4a9; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #5db37e; display: inline-block; }
 .dot.warn { background: #d9a441; }
 .navhead { padding: 0 12px; margin-bottom: 8px; text-transform: uppercase; }
 .nav { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 8px; color: var(--navy-text); text-decoration: none; margin-bottom: 4px; border-left: 2px solid transparent; }
+.side .nav { width: 100%; background: transparent; border-color: transparent; color: var(--navy-text); text-align: left; font: inherit; cursor: pointer; }
 .nav.active { background: #2b4236; color: var(--mint); border-left-color: var(--mint); }
+.side .nav.active { background: #2b4236; border-left-color: var(--mint); color: var(--mint); }
 .nav.off { opacity: .6; cursor: not-allowed; }
 .nav em { margin-left: auto; font-style: normal; font-size: .65rem; color: var(--mint); }
 .side-foot { margin-top: auto; display: grid; gap: 14px; }
@@ -91,12 +100,36 @@ button.primary { width: 100%; margin-top: 24px; padding: 13px; font-size: 1rem; 
 .read .lead { font-weight: 600; }
 .body { white-space: pre-wrap; }
 .out footer { display: flex; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.export-actions { display: flex; gap: 8px; margin-left: auto; }
+.export-actions button { padding: 7px 12px; }
+.validation { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 14px; font-size: .82rem; }
+.validation ul { flex-basis: 100%; margin: 0; color: var(--bad); }
+.valid { color: var(--ok); }
+.invalid { color: var(--bad); }
+.video-render { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
+.video-render .note { margin: 4px 0 0; }
+.video-preview { display: grid; justify-items: start; gap: 10px; }
+.video-preview video { width: min(100%, 720px); border-radius: 8px; background: #111; }
+.button-link { display: inline-block; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--green); text-decoration: none; }
+.history-list { display: grid; gap: 10px; }
+.history-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; width: 100%; text-align: left; background: var(--card); color: var(--ink); border-color: var(--line); }
+.history-item span:first-child { display: grid; }
+.history-item small { color: var(--muted); font-weight: 400; }
+.history-item .mono { font-size: .75rem; }
+.audit-events { margin-top: 28px; }
+.audit-events ul { list-style: none; padding: 0; }
+.audit-events li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.audit-events li span { color: var(--muted); }
 
 /* small screens: sidebar becomes a slim header */
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
-  .side { position: static; height: auto; flex-direction: row; align-items: center; padding: 14px 16px; }
-  .side .ws, .side nav, .side-foot { display: none; }
+  .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 14px 16px; }
+  .side .ws, .side-foot { display: none; }
+  .side nav { display: flex; width: 100%; }
+  .side .navhead { display: none; }
+  .side .nav { flex: 1; }
+  .side .auth-box { display: grid; width: 100%; }
   .grid { grid-template-columns: 1fr; }
   .content { padding: 24px 16px 56px; }
   .topbar { padding: 14px 16px; }

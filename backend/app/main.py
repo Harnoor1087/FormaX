@@ -5,7 +5,7 @@ from .api.routes import router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="FormaX AI - Member 2: AI Pipeline & Security Backend",
+    description="FormaX AI - AI Pipeline, Generation & Review",
     version="1.0.0",
 )
 
