@@ -5,7 +5,16 @@ async function request(path, options = {}, accessToken = '') {
   let res;
   try {
     const headers = new Headers(options.headers || {});
-    if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
+    const sessionAuth = authHeader();
+
+    if (!headers.has('Authorization')) {
+      if (accessToken) {
+        headers.set('Authorization', `Bearer ${accessToken}`);
+      } else if (sessionAuth.Authorization) {
+        headers.set('Authorization', sessionAuth.Authorization);
+      }
+    }
+
     res = await fetch(`${BASE}${path}`, { ...options, headers });
   } catch {
     throw new Error('Cannot reach the server. Check that the backend is running.');
@@ -18,7 +27,14 @@ async function request(path, options = {}, accessToken = '') {
     } catch { /* non-JSON error body */ }
     throw new Error(detail || `The server returned an error (${res.status}).`);
   }
-  return res.json();
+
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
 /**
@@ -32,7 +48,7 @@ export async function generate(payload, accessToken) {
   if (USE_MOCK) return mockGenerate(payload);
   return request('/api/generate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeader() },
     body: JSON.stringify(payload),
   }, accessToken);
 }
@@ -150,4 +166,34 @@ async function mockGenerate(p) {
       body: snippet + (p.source_text.length > 280 ? '...' : ''),
     })),
   };
+}
+
+function authHeader() {
+  try {
+    const t = sessionStorage.getItem('formax_token');
+    return t && t !== 'mock-token' ? { Authorization: `Bearer ${t}` } : {};
+  } catch { return {}; }
+}
+
+export async function login(email, password) {
+  if (USE_MOCK) {
+    await new Promise((r) => setTimeout(r, 600));
+    return 'mock-token';
+  }
+  let res;
+  try {
+    res = await fetch(`${BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    throw new Error('Cannot reach the server. Check that the backend is running.');
+  }
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json()).detail; } catch { /* non-JSON body */ }
+    throw new Error(detail || 'Sign in failed. Check your email and password.');
+  }
+  return (await res.json()).token;
 }

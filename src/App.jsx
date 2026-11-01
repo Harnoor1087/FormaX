@@ -10,7 +10,7 @@ const MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
 const MAX_CHARS = 50000;
 
-export default function App() {
+export default function App({ onLogout }) {
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
   const [extracting, setExtracting] = useState(false);
@@ -104,7 +104,7 @@ export default function App() {
 
   return (
     <div className="shell">
-      <Sidebar
+      <Sidebar onLogout={onLogout}
         page={page}
         onNavigate={setPage}
         onConnect={connect}

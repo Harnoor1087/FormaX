@@ -1,0 +1,63 @@
+.muted { color: var(--muted); } .small { font-size: .82rem; }
+.name.dark { color: var(--ink); }
+.signout { margin-left: auto; background: transparent; border: 1px solid var(--navy-line); color: var(--navy-text); padding: 5px 10px; font-size: .75rem; }
+
+/* landing */
+.lp-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 32px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
+.lp-nav .logo { border-color: var(--green); color: var(--green); }
+.lp-links { display: flex; gap: 28px; }
+.lp-links a, .btn-ghost { color: var(--ink); text-decoration: none; font-weight: 500; }
+.lp-links a:hover { color: var(--green); }
+.lp-hero, .lp-sec { max-width: 1100px; margin: 0 auto; padding: 72px 32px; }
+.lp-hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+.eyebrow { color: var(--green); text-transform: uppercase; font-size: .75rem; margin: 0 0 14px; }
+.lp-hero h1 { font-size: 3.1rem; line-height: 1.1; letter-spacing: -.025em; margin: 0 0 18px; }
+.lead { font-size: 1.1rem; color: var(--muted); max-width: 52ch; margin: 0 0 28px; }
+.cta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+button.big { padding: 14px 26px; font-size: 1rem; }
+.btn-ghost { border-bottom: 1.5px solid var(--green); padding-bottom: 2px; }
+.flow { background: var(--navy); border-radius: 14px; padding: 24px; color: #dfe6ec; display: grid; gap: 10px; }
+.flow-src { display: grid; gap: 4px; padding: 14px 16px; border: 1px dashed var(--navy-text); border-radius: 10px; }
+.flow-src .tiny { color: var(--mint); text-transform: uppercase; }
+.flow-arrow { text-align: center; color: var(--mint); font-size: 1.3rem; }
+.flow-out { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #2b4236; border-radius: 8px; color: var(--mint); font-weight: 500; }
+.flow-out span { margin-left: auto; color: var(--navy-text); }
+.lp-sec h2 { font-size: 2rem; letter-spacing: -.02em; margin: 0 0 12px; }
+.lp-sec .sub { color: var(--muted); max-width: 64ch; margin: 0 0 32px; }
+.lp-sec.alt { max-width: none; background: var(--card); border-block: 1px solid var(--line); }
+.lp-sec.alt > * { max-width: 1036px; margin-inline: auto; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.cards.four { grid-template-columns: repeat(4, 1fr); }
+.lp-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; }
+.lp-card h3, .steps h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.lp-card p, .steps p { margin: 0; color: var(--muted); }
+.formats { text-transform: uppercase; margin: 36px 0 12px; color: var(--muted); }
+.chip.static { cursor: default; }
+.steps { list-style: none; padding: 0; margin: 28px auto 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.num { color: var(--green); font-size: .85rem; display: block; margin-bottom: 8px; }
+.lp-foot { background: var(--navy); color: var(--navy-text); padding: 32px; display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.lp-foot div { display: grid; gap: 4px; } .lp-foot strong { color: #fff; }
+
+/* login */
+.auth { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+.auth-side { background: var(--navy); color: var(--navy-text); padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+.auth-side h2 { color: #fff; font-size: 2.2rem; line-height: 1.15; letter-spacing: -.02em; margin: 0 0 12px; max-width: 14ch; }
+.auth-side p { max-width: 36ch; margin: 0; }
+.auth-main { display: grid; place-items: center; padding: 32px; }
+.auth-card { width: 100%; max-width: 400px; }
+.auth-card h1 { font-size: 2rem; margin: 18px 0 6px; }
+.auth-card .muted { margin: 0 0 8px; }
+
+@media (max-width: 900px) {
+  .lp-hero { grid-template-columns: 1fr; padding-block: 48px; }
+  .lp-hero h1 { font-size: 2.2rem; }
+  .cards, .cards.four, .steps { grid-template-columns: 1fr 1fr; }
+  .lp-links { display: none; }
+  .lp-nav, .lp-hero, .lp-sec { padding-inline: 20px; }
+  .auth { grid-template-columns: 1fr; }
+  .auth-side { display: none; }
+}
+@media (max-width: 560px) { .cards, .cards.four, .steps { grid-template-columns: 1fr; } }
+
+.home-brand .name { font-size: 2.2rem; }
+.home-brand .name span { font-size: 0.9em; }
