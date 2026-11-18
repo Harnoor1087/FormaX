@@ -75,7 +75,7 @@ export default function Home({ onSignIn }) {
 
       <footer className="lp-foot">
   <div className="foot-brand">
-    <strong>formaxAI</strong>
+    <strong>FormaX AI</strong>
     <span>Gen AI platform for automated content transformation.</span>
   </div>
   <nav aria-label="Footer" className="foot-links">

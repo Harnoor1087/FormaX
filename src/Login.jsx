@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { login } from './api';
 
-const MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+const DEMO = import.meta.env.VITE_MOCK_AUTH === 'true';
 
 export default function Login({ onSuccess, onBack }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   async function submit(e) {
     e.preventDefault();
     setError('');
-    if (!/^\S+@\S+\.\S+$/.test(email)) return setError('Enter a valid email address.');
-    if (!password) return setError('Enter your password.');
+    if (!DEMO && !token.trim()) return setError('Enter your access token.');
     setBusy(true);
     try {
-      onSuccess(await login(email.trim(), password));
+      onSuccess(await login(token.trim()));
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -40,16 +38,14 @@ export default function Login({ onSuccess, onBack }) {
         <form className="auth-card" onSubmit={submit} noValidate>
           <button type="button" className="link" onClick={onBack}>← Back to home</button>
           <h1>Sign in</h1>
-          <p className="muted">Use your operator account to open the workspace.</p>
+          <p className="muted">Enter your access token to open the workspace.</p>
 
-          <label className="field" htmlFor="email">Email</label>
-          <input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@organisation.gov.in" />
-          <label className="field" htmlFor="pw">Password</label>
-          <input id="pw" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label className="field" htmlFor="tok">Access token</label>
+          <input id="tok" type="password" autoComplete="off" value={token} onChange={(e) => setToken(e.target.value)} />
 
           {error && <p className="err" role="alert">{error}</p>}
-          <button className="primary" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
-          {MOCK && <p className="muted small">Demo mode: any valid email and password will work.</p>}
+          <button className="primary" disabled={busy}>{busy ? 'Checking…' : 'Sign in'}</button>
+          {DEMO && <p className="muted small">Demo mode: any value works.</p>}
         </form>
       </main>
     </div>

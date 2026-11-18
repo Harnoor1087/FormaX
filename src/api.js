@@ -1,5 +1,8 @@
 const BASE = import.meta.env.VITE_API_URL || '';
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+const MOCK_AUTH = import.meta.env.VITE_MOCK_AUTH === 'true';
+
+
 
 async function request(path, options = {}, accessToken = '') {
   let res;
@@ -175,25 +178,20 @@ function authHeader() {
   } catch { return {}; }
 }
 
-export async function login(email, password) {
-  if (USE_MOCK) {
+export async function login(token) {
+  if (MOCK_AUTH) {
     await new Promise((r) => setTimeout(r, 600));
     return 'mock-token';
   }
   let res;
   try {
-    res = await fetch(`${BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    res = await fetch(`${BASE}/api/v1/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
   } catch {
     throw new Error('Cannot reach the server. Check that the backend is running.');
   }
-  if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json()).detail; } catch { /* non-JSON body */ }
-    throw new Error(detail || 'Sign in failed. Check your email and password.');
-  }
-  return (await res.json()).token;
+  if (res.status === 401 || res.status === 403) throw new Error('Invalid access token.');
+  if (!res.ok) throw new Error(`Server error (${res.status}).`);
+  return token;
 }

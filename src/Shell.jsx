@@ -25,7 +25,7 @@ export function Sidebar({
       <div className="brand">
         <span className="logo" aria-hidden="true">↻</span>
         <div>
-          <div className="name">formax<span>AI</span></div>
+          <div className="name">FormaX<span>AI</span></div>
           <div className="mono tiny">Operational workspace</div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export function Sidebar({
         </div>
         <div className="user">
           <span className="avatar">AO</span>
-          <div><strong>Analyst Operator</strong><span>Operations team</span></div>
+          <div><strong>Analyst Operator {onLogout && <button className="signout" onClick={onLogout}>Sign out</button>}</strong><span>Operations team</span></div>
         </div>
       </div>
     </aside>
