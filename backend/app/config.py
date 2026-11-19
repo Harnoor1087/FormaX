@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     MIN_SOURCE_CHARS: int = 1
     
     # Model configuration
+    # Using gemini-3.1-flash-lite for stability and availability
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     DEFAULT_MODEL: str = Field(
         default="gemini-3.1-flash-lite",
