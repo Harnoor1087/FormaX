@@ -17,8 +17,8 @@ FORMAT_INSTRUCTIONS = {
     ),
     OutputType.LINKEDIN_POST.value: (
         "Create a concise professional social post with a clear opening, source-grounded "
-        "points, a measured takeaway, and relevant hashtags. Use relevant emojis (💡 📊 🎯 ✅ 🔍 📈) "
-        "to make it engaging. Do not invent calls to action."
+        "points, a measured takeaway, and relevant hashtags. Use relevant emojis throughout "
+        "(💡 📊 🎯 ✅ 🔍 📈 🚀 💪 🌟) to make it engaging and eye-catching. Do not invent calls to action."
     ),
     OutputType.TWITTER_THREAD.value: (
         "Create a short numbered X/Twitter thread with an opening post, source-grounded "
