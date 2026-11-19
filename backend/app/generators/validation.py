@@ -101,10 +101,10 @@ def _has_supported_key_point(key_point: str, source_facts: set[str]) -> bool:
         overlap = len(key_point_words & source_words)
         if overlap >= 1:  # At least 1 word matches
             similarity = 2 * overlap / (len(key_point_words) + len(source_words))
-            if similarity >= 0.25:  # Very lenient threshold
+            if similarity >= 0.20:  # Very lenient threshold (was 0.25)
                 return True
-    # Fallback: if key point is short enough, allow it
-    return len(key_point_words) <= 5
+    # Fallback: if key point is reasonable length, allow it
+    return len(key_point_words) <= 6  # Increased from 5
 
 
 def _source_evidence_windows(source_text: str) -> List[str]:
