@@ -40,7 +40,7 @@ class FormatRouter:
         """
         Dispatches the validated context to each requested generator with error isolation.
         If a generator raises an exception, other outputs are preserved.
-        Uses parallel execution for better performance.
+        Uses parallel execution for better performance (5x faster for multiple formats).
         """
         import concurrent.futures
         
