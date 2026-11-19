@@ -63,8 +63,8 @@ class ContentGenerator:
         if not self.model_client.api_key:
             if language != "English":
                 raise LanguageGenerationUnavailable(
-                    f"{language} drafts require an available Gemini text-generation quota. "
-                    "English template fallback is disabled for non-English requests."
+                    f"{language} content requires Gemini API key. "
+                    "Please configure GEMINI_API_KEY in .env file."
                 )
             return template_generator(context).model_copy(
                 update={"generation_mode": "template"}
