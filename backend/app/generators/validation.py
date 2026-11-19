@@ -241,13 +241,14 @@ def validate_outputs(
             consistency_issues.append(f"{prefix} does not include the shared source topic.")
 
         for fact in output.key_points:
-            # Skip strict validation for presentations, executive summaries, social posts, and advisory
+            # Skip strict validation for formats that need flexibility
             if output.output_type in [
                 OutputType.PRESENTATION.value, 
                 OutputType.EXECUTIVE_SUMMARY.value,
                 OutputType.LINKEDIN_POST.value,
                 OutputType.TWITTER_THREAD.value,
-                OutputType.ADVISORY.value
+                OutputType.ADVISORY.value,
+                OutputType.INFOGRAPHIC.value
             ]:
                 continue
                 
