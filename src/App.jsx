@@ -4,6 +4,7 @@ import { extractText } from './extract';
 import { generate, identifyAccessToken } from './api';
 import Results from './Results.jsx';
 import History from './History.jsx';
+import TokenManager from './TokenManager.jsx';
 import { Sidebar, TopBar } from './Shell.jsx';
 
 const MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
@@ -117,7 +118,8 @@ export default function App({ onLogout }) {
       <div className="main">
         <TopBar mock={MOCK} />
         <div className="content">
-      {page === 'history' ? <History accessToken={accessToken} role={role} /> : <>
+      {page === 'history' ? <History accessToken={accessToken} role={role} /> : 
+       page === 'tokens' ? <TokenManager accessToken={accessToken} /> : <>
       <header className="top">
         <h1>FormaX AI</h1>
         <p>Add a source, choose the outputs, then review every draft before it leaves the platform.</p>

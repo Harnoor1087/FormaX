@@ -6,6 +6,7 @@ const I = (d) => (
 const WandIcon = () => I(<><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M17.8 6.2 19 5M12.2 6.2 11 5M3 21l9-9" /></>);
 const ClockIcon = () => I(<><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></>);
 const ShieldIcon = () => I(<><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /><path d="m9 12 2 2 4-4" /></>);
+const KeyIcon = () => I(<><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></>);
 
 export function Sidebar({
   onLogout,
@@ -64,6 +65,9 @@ export function Sidebar({
         <div className="mono tiny navhead">Workspace</div>
         <button className={`nav${page === 'transform' ? ' active' : ''}`} aria-current={page === 'transform' ? 'page' : undefined} onClick={() => onNavigate('transform')}><WandIcon /> Transform</button>
         <button className={`nav${page === 'history' ? ' active' : ''}`} aria-current={page === 'history' ? 'page' : undefined} onClick={() => onNavigate('history')}><ClockIcon /> History</button>
+        {role === 'reviewer' && (
+          <button className={`nav${page === 'tokens' ? ' active' : ''}`} aria-current={page === 'tokens' ? 'page' : undefined} onClick={() => onNavigate('tokens')}><KeyIcon /> Tokens</button>
+        )}
       </nav>
 
       <div className="side-foot">
