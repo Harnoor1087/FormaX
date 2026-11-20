@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from ..security.api_auth import ApiRole, require_roles
 from ..storage.token_store import token_store
+from ..storage.token_monitor import get_token_health_report, revoke_expired_tokens
 
 router = APIRouter(prefix="/v1/tokens", tags=["Token Management"])
 
@@ -160,3 +161,29 @@ def get_token_usage(
     usage_logs = token_store.get_token_usage_stats(token_id, limit=limit)
     return [TokenUsageLog(**log) for log in usage_logs]
 
+
+
+@router.get("/health-report")
+def get_tokens_health_report(
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
+):
+    """
+    Get comprehensive token health report (reviewer only).
+    Includes statistics on active, expired, expiring, and unused tokens.
+    """
+    return get_token_health_report()
+
+
+@router.post("/cleanup/expired", status_code=status.HTTP_200_OK)
+def cleanup_expired_tokens(
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
+):
+    """
+    Automatically revoke all expired tokens (reviewer only).
+    Returns list of revoked token IDs.
+    """
+    revoked_ids = revoke_expired_tokens()
+    return {
+        "revoked_count": len(revoked_ids),
+        "revoked_token_ids": revoked_ids,
+    }
