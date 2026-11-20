@@ -11,6 +11,7 @@ export default function TokenManager({ accessToken }) {
   const [tokenName, setTokenName] = useState('');
   const [role, setRole] = useState('operator');
   const [expires, setExpires] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     loadTokens();
@@ -73,7 +74,11 @@ export default function TokenManager({ accessToken }) {
       setTokenName('');
       setRole('operator');
       setExpires('');
+      setShowSuccess(true);
       loadTokens();
+      
+      // Auto-hide success message after 10 seconds
+      setTimeout(() => setShowSuccess(false), 10000);
     } catch (err) {
       setError(err.message);
     } finally {
