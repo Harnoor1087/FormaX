@@ -291,13 +291,14 @@ def health_check():
     }
 
 @router.get("/v1/auth/me", tags=["Authentication"])
-def get_current_user_role(role: ApiRole = Depends(require_roles("operator", "reviewer"))):
-    return {"role": role}
+def get_current_user_role(auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("operator", "reviewer"))):
+    role, token_id = auth
+    return {"role": role, "token_id": token_id}
 
 @router.get("/v1/security/audit-trail", tags=["Security Governance"])
 def get_audit_trail(
     limit: int = 50,
-    _role: ApiRole = Depends(require_roles("operator", "reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("operator", "reviewer")),
 ):
     """
     Operator access to immutable security audit trail (Synopsis Section 5).
@@ -313,14 +314,14 @@ def get_audit_trail(
 def list_generations(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    _role: ApiRole = Depends(require_roles("operator", "reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("operator", "reviewer")),
 ):
     return {"generations": generation_store.list_generations(limit=limit, offset=offset)}
 
 @router.get("/v1/generations/{generation_id}", tags=["Generation Review"])
 def get_generation(
     generation_id: str,
-    _role: ApiRole = Depends(require_roles("operator", "reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("operator", "reviewer")),
 ):
     generation = generation_store.get_generation(generation_id)
     if generation is None:
@@ -331,7 +332,7 @@ def get_generation(
 def edit_generated_output(
     output_id: str,
     update: GenerateOutputUpdate,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     existing = generation_store.get_output(output_id)
     if existing is None:
@@ -357,7 +358,7 @@ def edit_generated_output(
 @router.post("/v1/outputs/{output_id}/approve", tags=["Generation Review"])
 def approve_generated_output(
     output_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     output = generation_store.get_output(output_id)
     if output is None:
@@ -373,7 +374,7 @@ def approve_generated_output(
 @router.post("/v1/outputs/{output_id}/export", tags=["Generation Review"])
 def record_generated_output_export(
     output_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     output = generation_store.record_export(output_id)
     if output is None:
@@ -389,7 +390,7 @@ def record_generated_output_export(
 )
 def export_presentation_pptx(
     output_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     output = generation_store.get_output(output_id)
     if output is None:
@@ -427,7 +428,7 @@ def export_presentation_pptx(
 )
 def start_output_video(
     output_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     if not settings.GEMINI_API_KEY.strip():
         raise HTTPException(
@@ -522,7 +523,7 @@ def start_output_video(
 @router.get("/v1/outputs/{output_id}/video", tags=["Video Generation"])
 def get_output_video_job(
     output_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     if generation_store.get_output(output_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Generated output not found.")
@@ -533,7 +534,7 @@ def get_output_video_job(
 @router.get("/v1/video-jobs/{video_job_id}", tags=["Video Generation"])
 def get_video_job_status(
     video_job_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     job = generation_store.get_video_job(video_job_id)
     if job is None:
@@ -611,7 +612,7 @@ def get_video_job_status(
 @router.get("/v1/video-jobs/{video_job_id}/download", tags=["Video Generation"])
 def download_video_job(
     video_job_id: str,
-    _role: ApiRole = Depends(require_roles("reviewer")),
+    auth: tuple[ApiRole, Optional[str]] = Depends(require_roles("reviewer")),
 ):
     job = generation_store.get_video_job(video_job_id)
     if job is None:
