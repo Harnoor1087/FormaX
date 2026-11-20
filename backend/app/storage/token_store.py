@@ -128,8 +128,14 @@ class TokenStore:
 
             # Check expiration
             if row["expires_at"]:
-                expires = datetime.fromisoformat(row["expires_at"])
-                if datetime.now(timezone.utc) > expires:
+                try:
+                    expires = datetime.fromisoformat(row["expires_at"])
+                    if datetime.now(timezone.utc) > expires:
+                        # Auto-revoke expired token
+                        self.revoke_token(row["token_id"])
+                        return None
+                except (ValueError, TypeError):
+                    # Invalid expiration date - log and continue
                     return None
 
             return {
