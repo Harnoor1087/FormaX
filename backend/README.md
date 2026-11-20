@@ -16,6 +16,35 @@ This backend module fulfills the **Member 2 Responsibilities** defined in the pr
 
 ## 2. API Endpoints
 
+### Authentication & Token Management
+
+FormaX uses a **database-backed token management system** for secure API access.
+
+- **Roles**: `operator` (generation only) and `reviewer` (full access)
+- **Token Format**: `ftx_<32-character-random-string>`
+- **Management**: CLI tool (`manage_tokens.py`) and web UI for reviewers
+
+**Quick Start:**
+```bash
+# Create a reviewer token
+python backend/manage_tokens.py create "Admin Token" reviewer
+
+# Create an operator token
+python backend/manage_tokens.py create "API Client" operator --expires 90
+
+# List all tokens
+python backend/manage_tokens.py list
+```
+
+**Authentication Header:**
+```
+Authorization: Bearer ftx_wJ8xL2kN9mPqRsT5vWyZ1aC3dF6gH8jK
+```
+
+📖 **Full Documentation**: See [TOKEN_MANAGEMENT.md](./TOKEN_MANAGEMENT.md)
+
+### Core API Endpoints
+
 ### `GET /health`
 Returns service health and operational metadata.
 
