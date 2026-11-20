@@ -11,6 +11,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app.storage.token_store import token_store
+from app.storage.token_monitor import (
+    print_health_report,
+    revoke_expired_tokens,
+    get_expiring_tokens,
+    get_unused_tokens,
+)
 
 
 def create_token(args):
@@ -129,6 +135,55 @@ def show_token(args):
             print("\nNo usage recorded.")
 
 
+def health_check(args):
+    """Show token health report."""
+    print_health_report()
+    
+    if args.revoke_expired:
+        print("Revoking expired tokens...")
+        revoked = revoke_expired_tokens()
+        if revoked:
+            print(f"✅ Revoked {len(revoked)} expired token(s)")
+            for token_id in revoked:
+                print(f"  - {token_id}")
+        else:
+            print("✅ No expired tokens to revoke")
+
+
+def cleanup(args):
+    """Clean up unused or expired tokens."""
+    if args.expired:
+        print("Revoking expired tokens...")
+        revoked = revoke_expired_tokens()
+        if revoked:
+            print(f"✅ Revoked {len(revoked)} expired token(s)")
+        else:
+            print("No expired tokens found.")
+    
+    if args.unused:
+        print(f"\nChecking for tokens unused for {args.unused} days...")
+        unused = get_unused_tokens(days_threshold=args.unused)
+        if unused:
+            print(f"\nFound {len(unused)} unused token(s):")
+            for token in unused:
+                print(f"  - {token['token_name']} ({token['role']}) - {token['days_unused']} days unused")
+            
+            if not args.yes:
+                confirm = input("\nRevoke all unused tokens? (y/N): ")
+                if confirm.lower() != 'y':
+                    print("Cancelled.")
+                    return
+            
+            revoked_count = 0
+            for token in unused:
+                if token_store.revoke_token(token['token_id']):
+                    revoked_count += 1
+            
+            print(f"✅ Revoked {revoked_count} unused token(s)")
+        else:
+            print("No unused tokens found.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="FormaX Token Management CLI",
@@ -163,6 +218,18 @@ def main():
     show_parser.add_argument("--usage", action="store_true", help="Show usage statistics")
     show_parser.add_argument("--limit", type=int, default=20, help="Max usage records to show")
     show_parser.set_defaults(func=show_token)
+    
+    # Health check
+    health_parser = subparsers.add_parser("health", help="Show token health report")
+    health_parser.add_argument("--revoke-expired", action="store_true", help="Auto-revoke expired tokens")
+    health_parser.set_defaults(func=health_check)
+    
+    # Cleanup
+    cleanup_parser = subparsers.add_parser("cleanup", help="Clean up unused or expired tokens")
+    cleanup_parser.add_argument("--expired", action="store_true", help="Revoke expired tokens")
+    cleanup_parser.add_argument("--unused", type=int, help="Revoke tokens unused for X days")
+    cleanup_parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
+    cleanup_parser.set_defaults(func=cleanup)
     
     args = parser.parse_args()
     
