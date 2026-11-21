@@ -37,10 +37,13 @@ FORMAT_INSTRUCTIONS = {
         "flow only when supported, and source/limitations footer."
     ),
     OutputType.VIDEO_PACKAGE.value: (
-        "Create a production brief with clearly labeled scene sections (SCENE 1:, SCENE 2:, "
-        "and so on), visual/storyboard directions, narration, and subtitles. Keep all claims "
-        "grounded in the supplied source. Explicitly name the shared core topic in the title "
-        "or opening scene. This is a text package only; do not claim to render or attach a video."
+        "Write at least 4 scenes. Format every scene exactly like this, with no markdown symbols:\n"
+        "SCENE 1: <short title> (Duration: 0:00 - 0:15)\n"
+        "Visual Recommendation: <what the viewer sees>\n"
+        "Storyboard: <how the shot is laid out>\n"
+        "Narration (Voiceover): <spoken text>\n"
+        "Subtitles (SRT): <on-screen subtitle text>\n"
+        'Use the words "Storyboard", "Narration" and "Subtitles" exactly as written in every scene.'
     ),
 }
 

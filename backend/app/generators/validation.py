@@ -27,11 +27,11 @@ REQUIRED_FORMAT_PATTERNS = {
         r"(?:fact|callout|card|key|findings)",
     ),
     "video_package": (
-        r"(?im)^\s*(?:\[\s*)?scene\s*1\b",
-        r"(?im)^\s*(?:\[\s*)?scene\s*(?:[2-9]|\d{2,})\b",
-        r"(?:visual\s*/\s*storyboard|storyboard)",
-        r"narration",
-        r"subtitles?(?:\s*\(srt\))?",
+        r"(?im)^[\s#*\-•>\[]*scene\s*1\b",
+        r"(?im)^[\s#*\-•>\[]*scene\s*(?:[2-9]|\d{2,})\b",
+        r"storyboard",
+        r"narration|voice-?over",
+        r"subtitles?|captions?",
     ),
 }
 
@@ -212,9 +212,11 @@ def validate_outputs(
         searchable_body = output.body.casefold()
         # Skip pattern validation for advisory and infographic - they have flexible formats
         if output.output_type not in [OutputType.ADVISORY.value, OutputType.INFOGRAPHIC.value]:
-            if any(not re.search(pattern, searchable_body) for pattern in required_patterns):
+            missing = [p for p in required_patterns if not re.search(p, searchable_body)]
+            if missing:
                 schema_issues.append(
-                    f"{prefix} is missing required {output.output_type.replace('_', ' ')} structure."
+                    f"{prefix} is missing required {output.output_type.replace('_', ' ')} structure. "
+                    f"Failed patterns: {missing}"
                 )
 
         searchable_content = f"{output.title}\n{output.body}".casefold()
